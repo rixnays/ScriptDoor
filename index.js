@@ -2,22 +2,21 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
-let currentCommand = "";
+let lastCommand = { target: "", code: "", id: 0 };
 
-// Ana hesaptan komut alma
 app.post('/cmd', (req, res) => {
-    if (req.body && req.body.cmd) {
-        currentCommand = req.body.cmd;
-        console.log("Komut kaydedildi:", currentCommand);
-        return res.status(200).json({ success: true });
+    const { target, code } = req.body;
+    if (target && code) {
+        lastCommand = { target, code, id: Date.now() };
+        console.log("Komut Alındı:", lastCommand);
+        return res.json({ success: true });
     }
-    return res.status(400).json({ error: "No cmd provided" });
+    return res.status(400).json({ error: "Eksik parametre" });
 });
 
-// Yan hesapların komutu çekmesi
 app.get('/cmd', (req, res) => {
-    res.json({ cmd: currentCommand });
+    res.json(lastCommand);
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server active on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server aktif: ${PORT}`));
